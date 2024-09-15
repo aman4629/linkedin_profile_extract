@@ -7,9 +7,9 @@
 
 from linkedin_api import Linkedin
 
-api = Linkedin('himanshusingh10214@gmail.com', 'aman@4629') #Enter your linkedin email and password
+api = Linkedin('example@gmail.com', 'example') #Enter your linkedin email and password
 
-profiles = ["harsh-mishra-evo", "williamhgates"]  # list for linkedin profiles to be extracted
+profiles = ["williamhgates"]  # list for linkedin profiles to be extracted
 
 for profile in profiles:
     try:
