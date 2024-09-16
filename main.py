@@ -1,22 +1,51 @@
-# create python virtual environment 
-# by running -> python -m venv env
-           # -> source env/bin/activate
-# please install linkedin_api via pip first 
-#->  pip install linkedin_api
 
 
-from linkedin_api import Linkedin
+import requests
+from bs4 import BeautifulSoup
 
-api = Linkedin('example@gmail.com', 'example') #Enter your linkedin email and password
+def extract_info(profile_url):
+    response = requests.get(profile_url)
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-profiles = ["williamhgates"]  # list for linkedin profiles to be extracted
+    info = {}
 
-for profile in profiles:
-    try:
-        profile_data = api.get_profile(profile)
-        print(f"Profile data for {profile}:")
-        print(profile_data)
-        print("\n")
-    except Exception as e:
-        print(f"error while fetching profile {profile}: {e}")
+    # Location
+    location = soup.find('li', class_='t-16 t-black t-normal break-words')
+    if location:
+        location = location.text.strip()
+    else:
+        location = 'Not Available'
+    info['location'] = location
 
+    # Phone Number
+    phone_number = soup.find('a', class_='link-without-visited-state')
+    if phone_number and phone_number['href'].startswith('tel:'):
+        phone_number = phone_number['href'].replace('tel:', '')
+    else:
+        phone_number = 'Not Available'
+    info['phone_number'] = phone_number
+
+    # Username
+    username = profile_url.split('/')[-1].split('-')[0]
+    info['username'] = username
+
+    return info
+
+# Test the function with 10 LinkedIn profile URLs
+profile_urls = [
+    '(link1)',
+    '(link2)',
+    '(link3)',
+    '(link4)',
+    '(link5)',
+    '(link6)',
+    '(link7)',
+    '(link8)',
+    '(link9)',
+    '(link10)'
+]
+
+for url in profile_urls:
+    info = extract_info(url)
+    print(info)
+    print('------------------------')
