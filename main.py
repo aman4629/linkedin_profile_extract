@@ -1,33 +1,31 @@
-
-
 import requests
 from bs4 import BeautifulSoup
 
 def extract_info(profile_url):
-    response = requests.get(profile_url)
+    try:
+        response = requests.get(profile_url)
+        response.raise_for_status()  # Check for HTTP errors
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching {profile_url}: {e}")
+        return None
+
     soup = BeautifulSoup(response.content, 'html.parser')
 
     info = {}
 
     # Location
     location = soup.find('li', class_='t-16 t-black t-normal break-words')
-    if location:
-        location = location.text.strip()
-    else:
-        location = 'Not Available'
-    info['location'] = location
+    info['location'] = location.text.strip() if location else 'Not Available'
 
     # Phone Number
     phone_number = soup.find('a', class_='link-without-visited-state')
     if phone_number and phone_number['href'].startswith('tel:'):
-        phone_number = phone_number['href'].replace('tel:', '')
+        info['phone_number'] = phone_number['href'].replace('tel:', '')
     else:
-        phone_number = 'Not Available'
-    info['phone_number'] = phone_number
+        info['phone_number'] = 'Not Available'
 
     # Username
-    username = profile_url.split('/')[-1].split('-')[0]
-    info['username'] = username
+    info['username'] = profile_url.split('/')[-1].split('-')[0]
 
     return info
 
@@ -47,5 +45,8 @@ profile_urls = [
 
 for url in profile_urls:
     info = extract_info(url)
-    print(info)
-    print('------------------------')
+    if info:
+        print(info)
+        print('------------------------')
+
+
